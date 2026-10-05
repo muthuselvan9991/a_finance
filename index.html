@@ -70,9 +70,9 @@ function stBadge(r){const t=st(r);if(!t)return"";const c=t=="Done"?"#16a34a":"#d
 function cnt(r){const d=+r.days||0;if(!d||!r.type)return 0;
 if(r.type=="D")return d;
 if(r.type=="M")return Math.max(1,Math.floor(d/30));
-if(r.type=="W"){if(!r.start)return 0;const[y,m,dd]=r.start.split('-').map(Number);let c=0;for(let i=1;i<=d;i++){if(new Date(y,m-1,dd+i).getDay()==0)c++}return Math.max(1,c)}return 0}
-function pay(r){const n=cnt(r);if(!n)return 0;return Math.ceil(((+r.amt||0)+intr(r))/n)}
-function payCell(r){const n=cnt(r);if(!n)return"";const u={W:"Sundays",M:"months",D:"days"}[r.type];return f(pay(r))+' <small style="color:var(--mu);font-weight:400">× '+n+' '+u+'</small>'}
+if(r.type=="W")return Math.max(1,Math.floor(d/7));return 0}
+function pay(r){const n=cnt(r);if(!n)return 0;if(r.type=="M")return Math.ceil(pmon(r));return Math.ceil((+r.amt||0)/n)}
+function payCell(r){const n=cnt(r);if(!n||!pay(r))return"";const u={W:"weeks",M:"months",D:"days"}[r.type];return f(pay(r))+' <small style="color:var(--mu);font-weight:400">× '+n+' '+u+'</small>'}
 function sumP(r){return (r.pays||[]).reduce((s,x)=>s+(+x.a||0),0)}
 function hasP(r){return !!(r.pays&&r.pays.length)}
 function dep(r){return hasP(r)?sumP(r):(+r.dep||0)}
@@ -151,7 +151,7 @@ ov.style.display="block";document.body.classList.add("pm");window.scrollTo(0,0)}
 function addD(iso,n){const[y,m,d]=iso.split("-").map(Number),t=new Date(Date.UTC(y,m-1,d+n));return t.toISOString().slice(0,10)}
 function sched(r){const d=+r.days||0;if(!r.start||!d||!r.type)return[];const e=addD(r.start,d);let a=[];
 if(r.type=="D")for(let i=1;i<=d;i++)a.push(addD(r.start,i));
-else if(r.type=="W"){for(let i=1;i<=d;i++){const x=addD(r.start,i);const[y,m,dd]=x.split("-").map(Number);if(new Date(Date.UTC(y,m-1,dd)).getUTCDay()==0)a.push(x)}if(!a.length)a=[e]}
+else if(r.type=="W"){const N=Math.max(1,Math.floor(d/7));for(let i=1;a.length<N&&i<=d+7*N+7;i++){const x=addD(r.start,i);const[y,m,dd]=x.split("-").map(Number);if(new Date(Date.UTC(y,m-1,dd)).getUTCDay()==0)a.push(x)}}
 else if(r.type=="M"){const n=Math.max(1,Math.floor(d/30));if(d<30)a=[e];else for(let i=1;i<=n;i++)a.push(addD(r.start,30*i))}
 return a}
 function missInfo(r){const S2=sched(r),pa=pay(r);if(!S2.length||!pa)return null;const T=tdy(),n=S2.length,due=S2.filter(x=>x<=T).length;
